@@ -1,0 +1,94 @@
+name: input_pic corpus run
+
+# Two things are checked here, and they answer different questions.
+#
+#   1. The reader still scores 12/12 against the corpus pinned in the README. This is
+#      the figure the posting claims, so it is re-derived on every push instead of
+#      being trusted from the day it was written.
+#   2. The probe comparison still behaves as the README describes: 51 agreements and
+#      the same two findings. That one is advisory -- it describes upstream behaviour
+#      this repository does not control, so a drift there opens a question rather than
+#      failing a build.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "20 3 * * *"   # 03:20 UTC = 11:20 Asia/Shanghai
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # The pins the README states. A change to either is a change to the posting.
+  AEV_REPO_REF: 250de75575a945d00211415d7af41894d15427fa
+  CORPUS_DIGEST: 1588224056bb6f7f5971386164b4a737c422ec6b16bcdea3ca8dc559adb5f9a5
+
+jobs:
+  corpus-run:
+    name: 12/12 against the pinned corpus
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install the one dependency (Ed25519 verification)
+        run: python -m pip install --disable-pip-version-check cryptography
+
+      - name: Fetch the corpus at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: probityai/agent-evidence-vectors
+          ref: ${{ env.AEV_REPO_REF }}
+          path: .aev
+          persist-credentials: false
+
+      - name: Score the reader
+        run: |
+          set -o pipefail
+          python refund-connected-input-pic/run_corpus.py .aev/corpora/vectors-refund-connected | tee run.txt
+
+      - name: The corpus digest must be the one the README pins
+        run: |
+          grep -F "corpus digest: $CORPUS_DIGEST" run.txt \
+            || { echo "::error::corpus digest moved; the README pin no longer describes these bytes"; exit 1; }
+
+      - name: The last line must state the claimed figure
+        run: |
+          tail -n 1 run.txt | grep -F "12/12 scored vectors match" \
+            || { echo "::error::the run did not reproduce the posted figure"; exit 1; }
+
+  probes:
+    name: probe table (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: python -m pip install --disable-pip-version-check cryptography
+
+      - name: Fetch the corpus and the packaged reader at the pinned commit
+        uses: actions/checkout@v4
+        with:
+          repository: probityai/agent-evidence-vectors
+          ref: ${{ env.AEV_REPO_REF }}
+          path: .aev
+          persist-credentials: false
+
+      - name: Rebuild the one-field variants and compare the two readers
+        env:
+          AEV_REPO: ${{ github.workspace }}/.aev
+          PROBE_WORK: ${{ runner.temp }}/probe/run
+        run: |
+          cd refund-connected-input-pic
+          python probes/seams.py  | tee -a "$GITHUB_STEP_SUMMARY"
+          python probes/seams2.py | tee -a "$GITHUB_STEP_SUMMARY"

@@ -14,3 +14,9 @@ probes that produced any finding against it.
 
 These are directed runs: the contract document in each case is the target text. Where a
 run is blind, the directory says so and says what was not opened.
+
+Each directory's figure is re-derived by CI on every push against the corpus commit that
+directory pins, rather than trusted from the day it was posted: the workflow fails when the
+corpus digest moves or when the last line of the run stops matching the posted figure. The
+probe table runs beside it as advisory output, because it describes upstream behaviour this
+repository does not control.
