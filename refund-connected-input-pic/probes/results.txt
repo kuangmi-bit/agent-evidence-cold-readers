@@ -9,6 +9,7 @@
 #        change; where a change has to reach a later step, the harness mints its own
 #        Ed25519 key and re-signs. "packaged" is judge_case(...)["input_pic"], the layer
 #        verdict the reference reader reports, not a bare check_pic call.
+#        PIC_PYTHON defaults to the interpreter running the harness.
 
 ## probes/seams.py - 39 one-field variants
 variant                    cold read                        packaged                         flag

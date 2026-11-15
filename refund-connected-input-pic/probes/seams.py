@@ -38,7 +38,7 @@ from agent_evidence_vectors.refundconnected import (  # noqa: E402
 SRC = Path(os.environ.get("AEV_REPO", "/tmp/aev")) / "corpora/vectors-refund-connected/source/j01-connected-20261028-r1"
 WORK = Path(os.environ.get("PROBE_WORK", "/tmp/probe/run"))
 MINE = str(Path(__file__).resolve().parent.parent / "pic_reader.py")
-PY = "/tmp/aevvenv/bin/python"
+PY = os.environ.get("PIC_PYTHON", sys.executable)
 
 
 def load(p):
