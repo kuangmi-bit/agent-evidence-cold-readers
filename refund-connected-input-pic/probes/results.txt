@@ -1,0 +1,74 @@
+# Probe output, as produced.
+#
+# Host: WSL2, CPython 3.11 (venv), cryptography 50.0.2.
+# Pins: probityai/agent-evidence-vectors at 250de75575a945d00211415d7af41894d15427fa,
+#       corpus digest 1588224056bb6f7f5971386164b4a737c422ec6b16bcdea3ca8dc559adb5f9a5.
+# Setup: that repository cloned to AEV_REPO (default /tmp/aev); the reader under test is
+#        this directory's pic_reader.py; the packaged reader is imported from
+#        $AEV_REPO/packaging. Each probe copies the retained case j01 and applies one
+#        change; where a change has to reach a later step, the harness mints its own
+#        Ed25519 key and re-signs. "packaged" is judge_case(...)["input_pic"], the layer
+#        verdict the reference reader reports, not a bare check_pic call.
+
+## probes/seams.py - 39 one-field variants
+variant                    cold read                        packaged                         flag
+m00-baseline               ESTABLISHED                      ESTABLISHED                      SAME
+m01-file-missing           NOT_ESTABLISHED:input-files-missing NOT_ESTABLISHED:input-files-missing SAME
+m02-not-utf8               REFUSED:STRICT_PARSE             REFUSED:STRICT_PARSE             SAME
+m03-dup-member             CONTRADICTED:runner-allowed-STRICT_PARSE CONTRADICTED:runner-allowed-STRICT_PARSE SAME
+m04-two-evidence           CONTRADICTED:runner-allowed-PIC_EVIDENCE CONTRADICTED:runner-allowed-PIC_EVIDENCE SAME
+m05-evidence-type          CONTRADICTED:runner-allowed-PIC_EVIDENCE CONTRADICTED:runner-allowed-PIC_EVIDENCE SAME
+m06-payload-float          CONTRADICTED:runner-allowed-PIC_ATTESTATION CONTRADICTED:runner-allowed-PIC_ATTESTATION SAME
+m07-att-extra-member       CONTRADICTED:PIC_RESULT_PROPOSAL_REF CONTRADICTED:PIC_RESULT_PROPOSAL_REF SAME
+m08-key-revoked            CONTRADICTED:runner-allowed-PIC_KEY CONTRADICTED:runner-allowed-PIC_KEY SAME
+m09-key-untrusted          CONTRADICTED:runner-allowed-PIC_KEY CONTRADICTED:runner-allowed-PIC_KEY SAME
+m10-key-no-pubkey          CONTRADICTED:runner-allowed-PIC_KEY CONTRADICTED:runner-allowed-PIC_KEY SAME
+m11-sig-not-b64            CONTRADICTED:runner-allowed-PIC_SIGNATURE CONTRADICTED:runner-allowed-PIC_SIGNATURE SAME
+m12-alg-uppercase          CONTRADICTED:runner-allowed-PIC_SIGNATURE CONTRADICTED:runner-allowed-PIC_SIGNATURE SAME
+m13-action-tool            CONTRADICTED:runner-allowed-PIC_PROFILE CONTRADICTED:runner-allowed-PIC_PROFILE SAME
+m14-provenance             CONTRADICTED:runner-allowed-PIC_PROFILE CONTRADICTED:runner-allowed-PIC_PROFILE SAME
+m15-amount-2^53            CONTRADICTED:runner-allowed-PIC_PROFILE CONTRADICTED:runner-allowed-PIC_PROFILE SAME
+m16-amount-bool            CONTRADICTED:runner-allowed-PIC_PROFILE CONTRADICTED:runner-allowed-PIC_PROFILE SAME
+m17-currency-lower         CONTRADICTED:runner-allowed-PIC_PROFILE CONTRADICTED:runner-allowed-PIC_PROFILE SAME
+m18-args-extra             CONTRADICTED:runner-allowed-PIC_PROFILE CONTRADICTED:runner-allowed-PIC_PROFILE SAME
+m19-amount-changed         CONTRADICTED:runner-allowed-PIC_ARGS_DIGEST CONTRADICTED:runner-allowed-PIC_ARGS_DIGEST SAME
+m20-intent-changed         CONTRADICTED:runner-allowed-PIC_INTENT_DIGEST CONTRADICTED:runner-allowed-PIC_INTENT_DIGEST SAME
+m21-claims-string          CONTRADICTED:runner-allowed-PIC_CLAIMS_DIGEST CONTRADICTED:runner-allowed-PIC_CLAIMS_DIGEST SAME
+m22-result-extra           CONTRADICTED:PIC_RESULT_SHAPE    CONTRADICTED:PIC_RESULT_SHAPE    SAME
+m23-result-error           CONTRADICTED:PIC_RESULT_BLOCKS   CONTRADICTED:PIC_RESULT_BLOCKS   SAME
+m24-result-schema          CONTRADICTED:PIC_RESULT_SCHEMA   CONTRADICTED:PIC_RESULT_SCHEMA   SAME
+m25-proposal-ref           CONTRADICTED:PIC_RESULT_PROPOSAL_REF CONTRADICTED:PIC_RESULT_PROPOSAL_REF SAME
+m26-trust-ref              CONTRADICTED:PIC_RESULT_TRUST_REF CONTRADICTED:PIC_RESULT_TRUST_REF SAME
+m27-result-digests         CONTRADICTED:PIC_RESULT_DIGESTS  CONTRADICTED:PIC_RESULT_DIGESTS  SAME
+m28-result-tool            CONTRADICTED:PIC_RESULT_TOOL     CONTRADICTED:PIC_RESULT_TOOL     SAME
+m29-runner-allowed         CONTRADICTED:runner-allowed-PIC_ARGS_DIGEST CONTRADICTED:runner-allowed-PIC_ARGS_DIGEST SAME
+m30-payment-id-space       CONTRADICTED:runner-allowed-PIC_PROFILE CONTRADICTED:runner-allowed-PIC_PROFILE SAME
+m31-att-version            CONTRADICTED:runner-allowed-PIC_ATTESTATION CONTRADICTED:runner-allowed-PIC_ATTESTATION SAME
+m32-payload-not-canonical  CONTRADICTED:runner-allowed-PIC_SIGNATURE CONTRADICTED:runner-allowed-PIC_SIGNATURE SAME
+m33-claim-evidence-empty   CONTRADICTED:runner-allowed-PIC_CLAIM CONTRADICTED:runner-allowed-PIC_CLAIM SAME
+m34-claim-not-canonical    CONTRADICTED:runner-allowed-PIC_CLAIM CONTRADICTED:runner-allowed-PIC_CLAIM SAME
+m35-approval-ref-upper     CONTRADICTED:runner-allowed-PIC_CLAIM CONTRADICTED:runner-allowed-PIC_CLAIM SAME
+m36-claim-extra            CONTRADICTED:runner-allowed-PIC_CLAIM CONTRADICTED:runner-allowed-PIC_CLAIM SAME
+m37-decision-id-tab        CONTRADICTED:runner-allowed-PIC_CLAIM CONTRADICTED:runner-allowed-PIC_CLAIM SAME
+m38-sig-63-bytes           CONTRADICTED:runner-allowed-PIC_SIGNATURE CONTRADICTED:runner-allowed-PIC_SIGNATURE SAME
+
+39 variants, 0 disagreements
+
+## probes/seams2.py - 14 variants on the members the text does not type
+variant                  cold read                                    packaged                                     flag
+m39-entry-id-missing     CONTRADICTED:runner-allowed-PIC_PROFILE      CONTRADICTED:runner-allowed-PIC_PROFILE      SAME
+m40-entry-id-int         CONTRADICTED:runner-allowed-PIC_CLAIM        CONTRADICTED:runner-allowed-PIC_CLAIM        SAME
+m41-pubkey-uppercase     CONTRADICTED:runner-allowed-PIC_KEY          CONTRADICTED:runner-allowed-PIC_KEY          SAME
+m42-amount-neg-zero      CONTRADICTED:runner-allowed-PIC_PROFILE      CONTRADICTED:runner-allowed-PIC_PROFILE      SAME
+m43-proposal-extra       ESTABLISHED                                  ESTABLISHED                                  SAME
+m44-expires-null         ESTABLISHED                                  ERR:AttributeError:'NoneType' object has no attribute 'replace' **DIFF**
+m45-expires-1e21         CONTRADICTED:runner-allowed-PIC_ATTESTATION  CONTRADICTED:runner-allowed-PIC_ATTESTATION  SAME
+m46-decision-id-escapes  CONTRADICTED:PIC_RESULT_DIGESTS              CONTRADICTED:PIC_RESULT_DIGESTS              SAME
+m47-lone-surrogate       CONTRADICTED:runner-allowed-PIC_CLAIM        ERR:UnicodeEncodeError:'utf-8' codec can't encode character '\ud800' in position 10 **DIFF**
+m48-path-is-dir          NOT_ESTABLISHED:input-files-missing          NOT_ESTABLISHED:input-files-missing          SAME
+m49-key-object-extra     CONTRADICTED:PIC_RESULT_TRUST_REF            CONTRADICTED:PIC_RESULT_TRUST_REF            SAME
+m50-evaluated-at-null    ESTABLISHED                                  ESTABLISHED                                  SAME
+m51-sig-no-padding       CONTRADICTED:runner-allowed-PIC_SIGNATURE    CONTRADICTED:runner-allowed-PIC_SIGNATURE    SAME
+m52-payload-dup-member   CONTRADICTED:runner-allowed-PIC_ATTESTATION  CONTRADICTED:runner-allowed-PIC_ATTESTATION  SAME
+
+14 variants, 2 disagreements
