@@ -1,5 +1,7 @@
 # agent-evidence cold readers
 
+[![input_pic corpus run](https://github.com/kuangmi-bit/agent-evidence-cold-readers/actions/workflows/corpus-run.yml/badge.svg)](https://github.com/kuangmi-bit/agent-evidence-cold-readers/actions/workflows/corpus-run.yml)
+
 Independent readers for contracts published by
 [`probityai/agent-evidence-vectors`](https://github.com/probityai/agent-evidence-vectors),
 written by someone who did not write that repository's code.
